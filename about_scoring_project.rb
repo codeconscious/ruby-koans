@@ -29,8 +29,27 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 #
 # Your goal is to write the score method.
 
-def score(dice)
-  # You need to write this method
+def score(dice) ## TODO: Would be worth returning to this again.
+  raise ArgumentError, 'No more than five dice must be rolled' if dice.length > 5
+
+  score = 0
+  grouped_dice = dice.group_by(&:itself).map { |k, v| [k, v.count] }.to_h
+
+  if (grouped_dice[1] != nil && grouped_dice[1] >= 3)
+    score = score + 1000
+    grouped_dice[1] = grouped_dice[1] - 3
+  end
+
+  if (trio = grouped_dice.find { |k, v| v >= 3 })
+    trio_key = trio[0]
+    score = score + (trio_key * 100)
+    grouped_dice[trio_key] = grouped_dice[trio_key] - 3
+  end
+
+  score = score + (grouped_dice[1] * 100) if grouped_dice[1] != nil
+  score = score + (grouped_dice[5] * 50) if grouped_dice[5] != nil
+
+  score
 end
 
 class AboutScoringProject < Neo::Koan
